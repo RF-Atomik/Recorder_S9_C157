@@ -26,7 +26,8 @@ std::atomic_bool exiting(false);
 // =============================================================================
 
 
-int do_recording(   uint16_t device_count_manual,
+int do_recording(   uint16_t device_index,
+                    uint16_t device_count_manual,
                     int recording_length,
                     k4a_device_configuration_t *device_config,
                     bool align_depth,
@@ -72,8 +73,17 @@ int do_recording(   uint16_t device_count_manual,
     cout << "Number of devices installed : " << device_count << "\n" << endl;
 
     if (device_count_manual != 0) device_count = device_count_manual;
- 
-    for(int i=0; i<device_count;i++)
+    
+    int device_zero = 0;
+
+    if (device_index!=255)
+    {
+        device_zero = device_index;
+        
+        if (device_count > device_index + 1) device_count = device_count - 1;
+
+    }
+    for(int i=device_zero; i<device_count;i++)
     {   try
         {
 
@@ -107,7 +117,7 @@ int do_recording(   uint16_t device_count_manual,
     }
 
     
-     for(int i=0; i<device_count;i++)
+    for(int i=device_zero; i<device_count;i++)
     { 
         try
         {
@@ -137,17 +147,18 @@ int do_recording(   uint16_t device_count_manual,
         }
     
 
-    catch (const std::exception & e)
-    {
-        cerr << e.what();
+        catch (const std::exception & e)
+        {
+            cerr << e.what();
+        }
     }
-    }
+        
 
 // ==================================================================
 // Count number of microphone available and start device microphone  
 // ==================================================================
     availableDevices = sf::SoundRecorder::getAvailableDevices();
-    inputDevice = availableDevices[0];
+    inputDevice = availableDevices[device_zero];
     rec_song.setDevice(inputDevice);
 
 // ==============================================================
@@ -200,7 +211,7 @@ int do_recording(   uint16_t device_count_manual,
         temps = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         stringstream_time << std::put_time(std::localtime(&temps), "%Y_%m_%d_%H_%M_%S");
 
-        for (int i =0;i<device_count;i++)
+        for (int i =device_zero;i<device_count;i++)
         {     
             frame_number[i]= 1;
 
@@ -257,7 +268,7 @@ int do_recording(   uint16_t device_count_manual,
         if (rec_song.isAvailable()==true)
         {    
             rec_song.start();
-            cout << "Start recording soung of device " << "\n" << endl;
+            cout << "Start recording soung of device " << device_zero <<"\n" << endl;
         }
         else cout << "Impossible to record soung of device " << "\n" << endl;
 
@@ -273,7 +284,7 @@ int do_recording(   uint16_t device_count_manual,
 
             auto start = high_resolution_clock::now();
 
-            for( int i=0; i<device_count; i++)
+            for( int i=device_zero; i<device_count; i++)
             
             {   
                 k4a::image color_image;
@@ -554,12 +565,12 @@ int do_recording(   uint16_t device_count_manual,
         cout << "\nSaving sound buffer ..." << endl;
         rec_song.stop();
         const sf::SoundBuffer& buffer = rec_song.getBuffer();
-        string_time =  stringstream_time.str() + "_S9_C157_kinect_0_son.wav";
-        filename = dirname_time[0] + "/" + string_time;
+        string_time =  stringstream_time.str() + "_S9_C157_kinect_" + to_string(device_zero) + "_son.wav";
+        filename = dirname_time[device_zero] + "/" + string_time;
         buffer.saveToFile(filename);
         cout << "Sound saved\n" << endl;
 
-        for(int i=0;i<device_count;i++)
+        for(int i=device_zero;i<device_count;i++)
         {
             frametime_file[i].close();
             ofstream readyfile;
@@ -571,7 +582,7 @@ int do_recording(   uint16_t device_count_manual,
 
         if (exiting || !illimite)
         {
-            for(int i=0;i<device_count;i++)
+            for(int i=device_zero;i<device_count;i++)
             {
                 device[i].close();
                 cout << "Kinect " << i << " closed" << endl;

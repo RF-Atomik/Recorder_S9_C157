@@ -33,7 +33,8 @@ namespace fs = std::experimental::filesystem;
 // =============================================================================
 //                             FOWARD DECLARATIONS
 // =============================================================================
-int do_recording(   uint16_t device_count_manual,
+int do_recording(   uint16_t device_index,
+                    uint16_t device_count_manual,
                     int recording_length,
                     k4a_device_configuration_t *device_config,
                     bool align_depth,

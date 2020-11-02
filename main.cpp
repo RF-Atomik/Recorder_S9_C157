@@ -15,6 +15,7 @@
 int main(int argc, char **argv)
 {
     uint16_t device_count_manual = 0;
+    uint16_t device_index = 255;
     int recording_length = -1;
 
     k4a_image_format_t recording_color_format = K4A_IMAGE_FORMAT_COLOR_MJPG;
@@ -40,8 +41,16 @@ int main(int argc, char **argv)
         exit(0);
     });
 
-    cmd_parser.RegisterOption("-d|--device",
-                              "Specify the number of device to use ",
+    cmd_parser.RegisterOption("-d|--device-index",
+                              "Specify the index number of device to use ",
+                              1,
+                              [&](const std::vector<char *> &args) {
+                                  device_index = std::stoi(args[0]);
+                                  if (device_index < 0 || device_count_manual > 5)
+                                      throw std::runtime_error("Device index must 0-5");
+                              });
+    cmd_parser.RegisterOption("-nd|--number-device",
+                              "Specify the number of device to use to do multi-kinect recording",
                               1,
                               [&](const std::vector<char *> &args) {
                                   device_count_manual = std::stoi(args[0]);
@@ -249,15 +258,16 @@ int main(int argc, char **argv)
     device_config.camera_fps = recording_rate;
     device_config.synchronized_images_only = sync;
     
-    return do_recording((uint16_t)device_count_manual,
-                        recording_length,
-                        &device_config,
-                        align_depth,
-                        face,
-                        codec,
-                        coef_resize,
-                        illimite,
-                        show_time                       
+    return do_recording(    (uint16_t)device_index,
+                            (uint16_t)device_count_manual,
+                            recording_length,
+                            &device_config,
+                            align_depth,
+                            face,
+                            codec,
+                            coef_resize,
+                            illimite,
+                            show_time                       
                         );
 
                     
