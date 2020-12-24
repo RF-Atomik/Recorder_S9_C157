@@ -39,7 +39,7 @@ int main ()
 
         if (!flag)
         {
-            fs::path path = "/home/felin/Documents/Recorder_S9_C157/Data/Video";
+            fs::path path = "/home/odroidh2/Documents/Recorder_S9_C157/Data/Video";
 
             if (fs::is_empty(path) != true)
             {  
