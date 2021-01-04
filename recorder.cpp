@@ -306,6 +306,7 @@ int do_recording(   uint16_t device_index,
                     continue;
                 }
 
+                /*
                 time_t now = time(0);
                 tm *ltm = localtime(&now);
 
@@ -317,6 +318,10 @@ int do_recording(   uint16_t device_index,
                                     << "," << ltm->tm_min
                                     << "," << ltm->tm_sec
                                     << "\n";
+                */
+                uint64_t time_write = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                frametime_file[i]   << frame_number[i] << ","
+                                    << time_write << endl;
 
                 cout << "Kinect "<< i << " capture frame number " << frame_number[i] << endl;       
                 frame_number[i]= frame_number[i] + 1;
